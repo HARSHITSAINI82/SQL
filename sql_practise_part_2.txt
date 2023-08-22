@@ -1,0 +1,392 @@
+create database sql_class_2_practise;
+use sql_class_2_practise;
+
+create table if not exists employee(
+    id int,
+    name VARCHAR(50),
+    address VARCHAR(50),
+    city VARCHAR(50)
+);
+
+insert into employee values(1, 'Shashank', 'RJPM', 'Lucknow');
+
+select*from employee;
+
+--- add new column named DOB in the TABLE
+
+alter table employee add phoone_number int not null;
+
+
+select*from employee;
+
+--- modify existing column in a TABLE or change datatype of name column or increase lenght of name column
+
+alter table employee modify phoone_number varchar(100);
+
+describe employee;
+
+--- delete existing column from given TABLE or remove city column from employee table
+
+alter table employee drop column city;
+
+select*from employee;
+
+--- rename the column name to full_name
+
+alter table employee rename column  name to  new_name;
+
+select*from employee;
+
+
+create table if not exists employeee(
+    id int,
+    name VARCHAR(50),
+    age int,
+    hiring_date date,
+    salary int,
+    city varchar(50)
+);
+
+
+insert into employeee values(1,'Shashank', 24, '2021-08-10', 10000, 'Lucknow');
+
+insert into employeee values(2,'Rahul', 25, '2021-08-10', 20000, 'Khajuraho');
+
+insert into employeee values(3,'Sunny', 22, '2021-08-11', 11000, 'Banaglore');
+
+insert into employeee values(5,'Amit', 25, '2021-08-11', 12000, 'Noida');
+
+insert into employeee values(6,'Puneet', 26, '2021-08-12', 50000, 'Gurgaon');
+
+select*from employeee;
+
+--- add unique integrity constraint on id COLUMN
+
+alter table employeee add constraint unique_id unique(id);
+
+describe employeee;
+
+
+create table dimple 
+(
+id int,
+name varchar(20),
+age int,
+city varchar(100),
+constraint primary key (id),
+constraint unique_id unique(age)
+);
+
+select*from dimple;
+
+describe dimple;
+alter table dimple add constraint unique_age  unique(age) ; 
+
+describe dimple;
+
+select*from employeee;
+
+select name , age , city , salary , (salary +salary*.2) as new_salary 
+from employeee;
+
+update employeee set age ='20';
+
+
+
+
+alter table employeee drop constraint unique_id;
+describe employeee;
+select*from employeee;
+
+update employeee  set  salary = salary+.2*salary;
+
+
+select *from employeee;
+
+select*from employeee
+where name = 'rahul';
+
+select*from employeee
+limit 3;
+
+
+select*from employeee
+order by hiring_date;
+
+
+
+select * from employeee
+order by hiring_date , salary ;
+
+
+select * from employeee
+where salary not in (select max(salary) from employeee)
+limit 1;
+
+
+
+select * from employeee 
+order by salary asc 
+limit 1;
+
+
+select * from employeee
+order by salary desc 
+limit 1;
+
+
+# Table and Data for Group By
+use sql_class_2_practise;
+create table orders_data
+(
+ cust_id int,
+ order_id int,
+ country varchar(50),
+ state varchar(50)
+);
+
+
+
+insert into orders_data values(1,100,'USA','Seattle');
+insert into orders_data values(2,101,'INDIA','UP');
+insert into orders_data values(2,103,'INDIA','Bihar');
+insert into orders_data values(4,108,'USA','WDC');
+insert into orders_data values(5,109,'UK','London');
+insert into orders_data values(4,110,'USA','WDC');
+insert into orders_data values(3,120,'INDIA','AP');
+insert into orders_data values(2,121,'INDIA','Goa');
+insert into orders_data values(1,131,'USA','Seattle');
+insert into orders_data values(6,142,'USA','Seattle');
+insert into orders_data values(7,150,'USA','Seattle');
+
+select*from orders_data;
+
+# calculate total order placed country wise
+select country , count(*) as total_country_count from orders_data 
+group by country;
+
+
+select* from employeee;
+
+select age , sum(salary) as total_salary from employeee group by age ;
+
+# Use of Having Clause
+# Write a query to find the country where only 1 order was placed
+select country from orders_data group by country having count(*)>1;
+
+# How to use GROUP_CONCAT
+# Query - Write a query to print distinct states present in the dataset for each country?
+
+select country , group_concat(state) as state_in_country from orders_data group by country;
+
+
+select country , group_concat(distinct state) as state_in_country from orders_data group by country;
+
+
+
+select country , group_concat(distinct state order by state ) as state_in_country from orders_data
+group by country;
+
+
+select country , group_concat(distinct state order by state desc separator ' <> ') as sic from orders_data
+group by country;
+
+
+# Subqueries in SQL
+
+create table employees
+(
+    id int,
+    name varchar(50),
+    salary int
+);
+
+insert into employees values(1,'Shashank',5000),(2,'Amit',5500),(3,'Rahul',7000),(4,'Rohit',6000),(5,'Nitin',4000),(6,'Sunny',7500);
+
+
+select*from employees;
+
+# Write a query to print all those employee records who are getting more salary than 'Rohit'
+
+select * from employees 
+where salary > (select salary from employees 
+				where name = 'Rohit');
+
+
+# Use of IN and NOT IN
+select * from orders_data 
+where state in ('Seattle', 'Goa') ;
+
+select * from orders_data 
+where state  not in ('Seattle', 'Goa') ;
+
+
+
+create table customer_orders_data
+(
+    order_id int,
+    cust_id int,
+    supplier_id int,
+    cust_country varchar(50)
+);
+
+
+
+
+insert into customer_orders_data values(101,200,300,'USA'),(102,201,301,'INDIA'),(103,202,302,'USA'),(104,203,303,'UK');
+
+select * from customer_orders_data;
+
+
+
+
+create table supplier_data
+(
+    supplier_id int,
+    sup_country varchar(50)
+);
+
+insert into supplier_data values(300,'USA'),(303,'UK');
+
+
+select*from supplier_data;
+select * from customer_orders_data;
+
+select * from customer_orders_data
+where cust_country  in  (select distinct(sup_country) from supplier_data);
+# Uber SQL Interview questions
+
+
+create table tree
+(
+    node int,
+    parent int
+);
+insert into tree values (5,8),(9,8),(4,5),(2,9),(1,5),(3,9),(8,null);
+
+
+select * from tree;
+
+select node ,parent ,
+case
+when node not in( select distinct parent from tree where parent is not null )  then 'leaf'
+when  parent is null then 'root'
+else 'inter'
+end as node_type
+
+from tree;
+
+
+# Examples for join
+
+create table orders
+(
+    order_id int,
+    cust_id int,
+    order_dat date, 
+    shipper_id int
+);
+
+
+create table customers
+(
+    cust_id int,
+    cust_name varchar(50),
+    country varchar(50)
+);
+
+
+create table shippers
+(
+    ship_id int,
+    shipper_name varchar(50)
+);
+
+insert into orders values(10308, 2, '2022-09-15', 3);
+insert into orders values(10309, 30, '2022-09-16', 1);
+insert into orders values(10310, 41, '2022-09-19', 2);
+
+insert into customers values(1, 'Neel', 'India');
+insert into customers values(2, 'Nitin', 'USA');
+insert into customers values(3, 'Mukesh', 'UK');
+
+insert into shippers values(3,'abc');
+insert into shippers values(1,'xyz');
+
+select * from orders;
+select * from customers;
+select * from shippers;
+
+
+# perform inner JOIN
+
+# get the customer informations for each order order, if value of customer is present in orders TABLE
+
+select c.*,o.* from customers c
+inner join orders o on c.cust_id = o.cust_id;
+
+
+
+# Left Join
+
+select c.*,o.* from customers c
+left join  orders o on c.cust_id = o.cust_id;
+
+
+# Right Join
+
+select c.*,o.* from customers c
+right join  orders o on c.cust_id = o.cust_id;
+
+-- cross join 
+select 
+o.*, c.*
+from orders o
+cross join customers c;
+
+# How to join more than 2 datasets?
+# perform inner JOIN
+# get the customer informations for each order order, if value of customer is present in orders TABLE
+# also get the information of shipper name
+
+
+select c.*,o.*,s.*
+from customers c
+join orders o on o.cust_id = c.cust_id
+join shippers s on s.ship_id = o.shipper_id;
+
+
+create table employees_full_data
+(
+    emp_id int,
+    name varchar(50),
+    mgr_id int
+);
+
+insert into employees_full_data values(1, 'Shashank', 3);
+insert into employees_full_data values(2, 'Amit', 3);
+insert into employees_full_data values(3, 'Rajesh', 4);
+insert into employees_full_data values(4, 'Ankit', 6);
+insert into employees_full_data values(6, 'Nikhil', null);
+
+select * from employees_full_data;
+
+# Write a query to print the distinct names of managers??
+
+select emp.*
+from employees_full_data emp
+join (select distinct mgr_id as mid from employees_full_data) mgrr  on mgrr.mid = emp.emp_id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
