@@ -1,0 +1,137 @@
+from tkinter import *
+from tkinter import messagebox, ttk
+import pymysql
+import time
+import os
+
+class EmployeeSystem:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Employee Payroll Management System")
+        self.root.geometry("1350x700+0+0")
+        self.root.configure(background="white")
+
+        # Variables
+        self.var_emp_code = StringVar()
+        self.var_designation = StringVar()
+        self.var_name = StringVar()
+        self.var_age = StringVar()
+        self.var_gender = StringVar()
+        self.var_email = StringVar()
+        self.var_dob = StringVar()
+        self.var_doj = StringVar()
+        self.var_experience = StringVar()
+        self.var_proof_id = StringVar()
+        self.var_hr_location = StringVar()
+        self.var_contact = StringVar()
+        self.var_status = StringVar()
+        self.var_month = StringVar()
+        self.var_year = StringVar()
+        self.var_salary = StringVar()
+        self.var_t_days = StringVar()
+        self.var_absent = StringVar()
+        self.var_medical = StringVar()
+        self.var_pf = StringVar()
+        self.var_convence = StringVar()
+        self.var_netsalary = StringVar()
+
+        # Title
+        title = Label(self.root, text="Employee Payroll Management System", font=("times new roman", 30, "bold"), bg="#262626", fg="white", anchor="w", padx=10)
+        title.place(x=0, y=0, relwidth=1)
+
+        # Employee Details Frame
+        Frame1 = Frame(self.root, bd=3, relief=RIDGE, bg="white")
+        Frame1.place(x=10, y=70, height=570, width=740)
+
+        title2 = Label(Frame1, text="Employee Details", font=("times new roman", 20), bg="lightgray", fg="black", anchor="w", padx=10)
+        title2.place(x=0, y=0, relwidth=1)
+
+        lbl_code = Label(Frame1, text="Employee Code", font=("times new roman", 20), bg="white", fg="black")
+        lbl_code.place(x=10, y=70)
+        txt_code = Entry(Frame1, font=("times new roman", 15), textvariable=self.var_emp_code, bg="lightyellow", fg="black")
+        txt_code.place(x=220, y=74, width=200)
+        btn_search = Button(Frame1, text="Search", command=self.search, font=("times new roman", 20), bg="gray", fg="black")
+        btn_search.place(x=440, y=72, height=30)
+
+        # Employee details fields
+        details = [
+            ("Designation", self.var_designation), ("D.O.B", self.var_dob),
+            ("Name", self.var_name), ("D.O.J", self.var_doj),
+            ("Age", self.var_age), ("Experience", self.var_experience),
+            ("Gender", self.var_gender), ("Proof ID", self.var_proof_id),
+            ("Email", self.var_email), ("Contact No", self.var_contact),
+            ("Hired Location", self.var_hr_location), ("Status", self.var_status)
+        ]
+        y = 120
+        for i in range(0, len(details), 2):
+            lbl1 = Label(Frame1, text=details[i][0], font=("times new roman", 20), bg="white", fg="black")
+            lbl1.place(x=10, y=y)
+            txt1 = Entry(Frame1, font=("times new roman", 15), textvariable=details[i][1], bg="lightyellow", fg="black")
+            txt1.place(x=170, y=y + 5, width=200)
+
+            lbl2 = Label(Frame1, text=details[i + 1][0], font=("times new roman", 20), bg="white", fg="black")
+            lbl2.place(x=390, y=y)
+            txt2 = Entry(Frame1, font=("times new roman", 15), textvariable=details[i + 1][1], bg="lightyellow", fg="black")
+            txt2.place(x=520, y=y + 5, width=200)
+            y += 50
+
+        # Address field
+        lbl_Address = Label(Frame1, text="Address", font=("times new roman", 18), bg="white", fg="black")
+        lbl_Address.place(x=10, y=420)
+        self.txt_Address = Text(Frame1, font=("times new roman", 15), bg="lightyellow", fg="black")
+        self.txt_Address.place(x=170, y=425, width=540, height=130)
+
+        # Salary Details Frame
+        Frame2 = Frame(self.root, bd=3, relief=RIDGE, bg="white")
+        Frame2.place(x=760, y=70, height=305, width=510)
+
+        title3 = Label(Frame2, text="Employee Salary Details", font=("times new roman", 20), bg="lightgray", fg="black", anchor="w", padx=10)
+        title3.place(x=0, y=0, relwidth=1)
+
+        salary_details = [
+            ("Month", self.var_month), ("Year", self.var_year),
+            ("Salary", self.var_salary), ("Days", self.var_t_days),
+            ("Absent", self.var_absent), ("Medical", self.var_medical),
+            ("PF", self.var_pf), ("Convence", self.var_convence),
+            ("Net Salary", self.var_netsalary)
+        ]
+        y = 60
+        for i in range(0, len(salary_details), 3):
+            for j in range(3):
+                if i + j < len(salary_details):
+                    lbl = Label(Frame2, text=salary_details[i + j][0], font=("times new roman", 15), bg="white", fg="black")
+                    lbl.place(x=10 + (j * 180), y=y)
+                    txt = Entry(Frame2, font=("times new roman", 18), textvariable=salary_details[i + j][1], bg="lightyellow", fg="black")
+                    txt.place(x=90 + (j * 180), y=y + 2, width=100)
+            y += 50
+
+        # Buttons for Salary Frame
+        btn_calculate = Button(Frame2, text="Calculate", command=self.calculate, font=("times new roman", 20), bg="orange", fg="black")
+        btn_calculate.place(x=150, y=225, height=30, width=120)
+        btn_save = Button(Frame2, text="Save", command=self.add, font=("times new roman", 20), bg="green", fg="white")
+        btn_save.place(x=285, y=225, height=30, width=120)
+        btn_clear = Button(Frame2, text="Clear", command=self.clear, font=("times new roman", 20), bg="gray", fg="black")
+        btn_clear.place(x=420, y=225, height=30, width=120)
+
+    # Functionality
+    def search(self):
+        # Search employee in the database
+        pass
+
+    def calculate(self):
+        # Calculate salary
+        pass
+
+    def add(self):
+        # Add employee to the database
+        pass
+
+    def clear(self):
+        # Clear all fields
+        pass
+
+
+if __name__ == "__main__":
+    root = Tk()
+    obj = EmployeeSystem(root)
+    root.mainloop()
